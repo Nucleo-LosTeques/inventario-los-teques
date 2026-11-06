@@ -26,7 +26,8 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbychWWUgWolsNpNMMWlf2UZrjmr7IqANiRfa5-Hg2B760d7x8JDs8yJT3ULVsd2yEY0/exec";
+    // URL de la Web App en tu cuenta institucional
+    const API_URL = "https://script.google.com/macros/s/AKfycbzg9T3_KtYFHg7EDafFG-PAtZWEpWo-ZSWghmcoGBVTCTkw3vJs6lK-fdQcJvMA4gO6dA/exec";
     
     const urlParams = new URLSearchParams(window.location.search);
     const inv = urlParams.get('inv') || urlParams.get('INV');
@@ -62,7 +63,7 @@
           }
         })
         .catch(err => {
-          document.getElementById('cargando').innerHTML = '❌ Error al consultar los datos.';
+          document.getElementById('cargando').innerHTML = '❌ Error al consultar los datos. Verifica la conexión o permisos.';
         });
     }
   </script>
