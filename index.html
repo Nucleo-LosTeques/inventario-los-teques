@@ -24,26 +24,29 @@
     <div id="cargando">🔄 Cargando ficha de instrumento...</div>
     <div id="contenido" style="display:none;"></div>
   </div>
-
   <script>
-    // URL de la Web App en tu cuenta institucional
     const API_URL = "https://script.google.com/macros/s/AKfycbzg9T3_KtYFHg7EDafFG-PAtZWEpWo-ZSWghmcoGBVTCTkw3vJs6lK-fdQcJvMA4gO6dA/exec";
     
     const urlParams = new URLSearchParams(window.location.search);
     const inv = urlParams.get('inv') || urlParams.get('INV');
+    const fila = urlParams.get('fila') || urlParams.get('FILA');
 
-    if (!inv) {
-      document.getElementById('cargando').innerHTML = '❌ No se especificó el número de inventario.';
+    if (!inv && !fila) {
+      document.getElementById('cargando').innerHTML = '❌ No se especificó el número de inventario ni la fila.';
     } else {
-      fetch(`${API_URL}?inv=${encodeURIComponent(inv)}`)
+      const queryParam = fila 
+        ? `fila=${encodeURIComponent(fila)}` 
+        : `inv=${encodeURIComponent(inv)}`;
+
+      fetch(`${API_URL}?${queryParam}`)
         .then(res => res.json())
         .then(data => {
           document.getElementById('cargando').style.display = 'none';
           const cont = document.getElementById('contenido');
           cont.style.display = 'block';
-
           if (data.success) {
             const esDanado = /DANAD|INOPERATIV|REPARAC/i.test(data.condicion);
+            const asignadoTexto = data.asignadoA || data.asignado || 'N/A';
             cont.innerHTML = `
               <div class="header"><h2>🎻 Ficha de Instrumento</h2><p>EL SISTEMA - NÚCLEO LOS TEQUES</p></div>
               <div class="field"><span class="label">N° Inventario</span><span class="value" style="font-size:16px; color:#0284c7;">${data.inv}</span></div>
@@ -52,13 +55,13 @@
               <div class="field"><span class="label">Serial</span><span class="value">${data.serial}</span></div>
               <div class="field"><span class="label">Condición</span><div><span class="badge ${esDanado ? 'badge-danado' : 'badge-operativo'}">${data.condicion}</span></div></div>
               <div class="field"><span class="label">Ubicación Actual</span><span class="value">${data.ubicacion}</span></div>
-              <div class="field"><span class="label">Asignado A</span><span class="value">${data.asignado}</span></div>
+              <div class="field"><span class="label">Asignado A</span><span class="value">${asignadoTexto}</span></div>
               <div class="field"><span class="label">Observaciones</span><span class="value">${data.observaciones}</span></div>
             `;
           } else {
             cont.innerHTML = `
               <div class="header" style="border-color:#ef4444;"><h2 style="color:#ef4444;">❌ Instrumento No Encontrado</h2></div>
-              <p>No se encontró ningún registro para el inventario <b>${inv}</b>.</p>
+              <p>No se encontró ningún registro para <b>${fila ? 'la fila ' + fila : 'el inventario ' + inv}</b>.</p>
             `;
           }
         })
