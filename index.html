@@ -36,7 +36,7 @@
       const cont = document.getElementById('contenido');
       cont.style.display = 'block';
       if (data && data.success) {
-        const esDanado = /DANAD|INOPERATIV|REPARAC/i.test(data.condicion);
+        const esDanado = /DAÑAD|DANAD|INOPERATIV|REPARAC|MALO|AVERIAD/i.test(data.condicion);
         const asignadoTexto = data.asignadoA || data.asignado || 'N/A';
         cont.innerHTML = `
           <div class="header"><h2>🎻 Ficha de Instrumento</h2><p>EL SISTEMA - NÚCLEO LOS TEQUES</p></div>
