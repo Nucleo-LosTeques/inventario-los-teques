@@ -13,9 +13,9 @@
     .field { margin-bottom: 12px; display: flex; flex-direction: column; }
     .label { font-size: 11px; text-transform: uppercase; font-weight: 800; color: #64748b; }
     .value { font-size: 14px; font-weight: 600; color: #0f172a; margin-top: 2px; }
-    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; }
-    .badge-operativo { background: #dcfce7; color: #15803d; }
-    .badge-danado { background: #fee2e2; color: #b91c1c; }
+    .badge { display: inline-block; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; text-align: center; text-transform: uppercase; }
+    .badge-operativo { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .badge-danado { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
     #cargando { text-align: center; padding: 20px; font-weight: bold; color: #0284c7; }
   </style>
 </head>
@@ -36,15 +36,24 @@
       const cont = document.getElementById('contenido');
       cont.style.display = 'block';
       if (data && data.success) {
-        const esDanado = /DAÑAD|DANAD|INOPERATIV|REPARAC|MALO|AVERIAD/i.test(data.condicion);
+        const condLimpia = (data.condicion || '')
+          .toString()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toUpperCase()
+          .trim();
+
+        const esDanado = /DANAD|DAÑAD|INOPERATIV|REPARAC|MALO|AVERIAD|BAJA/.test(condLimpia);
+        const claseColor = esDanado ? 'badge-danado' : 'badge-operativo';
         const asignadoTexto = data.asignadoA || data.asignado || 'N/A';
+
         cont.innerHTML = `
           <div class="header"><h2>🎻 Ficha de Instrumento</h2><p>EL SISTEMA - NÚCLEO LOS TEQUES</p></div>
           <div class="field"><span class="label">N° Inventario</span><span class="value" style="font-size:16px; color:#0284c7;">${data.inv}</span></div>
           <div class="field"><span class="label">Instrumento</span><span class="value">${data.instrumento}</span></div>
           <div class="field"><span class="label">Marca / Modelo / Medida</span><span class="value">${data.marca}</span></div>
           <div class="field"><span class="label">Serial</span><span class="value">${data.serial}</span></div>
-          <div class="field"><span class="label">Condición</span><div><span class="badge ${esDanado ? 'badge-danado' : 'badge-operativo'}">${data.condicion}</span></div></div>
+          <div class="field"><span class="label">Condición</span><div><span class="badge ${claseColor}">${data.condicion}</span></div></div>
           <div class="field"><span class="label">Ubicación Actual</span><span class="value">${data.ubicacion}</span></div>
           <div class="field"><span class="label">Asignado A</span><span class="value">${asignadoTexto}</span></div>
           <div class="field"><span class="label">Observaciones</span><span class="value">${data.observaciones}</span></div>
@@ -67,7 +76,7 @@
       const script = document.createElement('script');
       script.src = `${API_URL}?${queryParam}&callback=mostrarFichaInstrumento`;
       script.onerror = function() {
-        document.getElementById('cargando').innerHTML = '❌ El dominio institucional bloqueó el acceso externo. Usa una cuenta @gmail.com para el puente.';
+        document.getElementById('cargando').innerHTML = '❌ Error de conexión con el servidor de inventario.';
       };
       document.body.appendChild(script);
     }
